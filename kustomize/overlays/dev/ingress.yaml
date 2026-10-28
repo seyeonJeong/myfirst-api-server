@@ -10,7 +10,7 @@ spec:
   ingressClassName: public-nginx
 
   rules:
-    - host: sk166-myfirst-ingress.class-5.skala-pg.com
+    - host: sk166-myfirst-ingress.class-5.skala-ai.com
       http:
         paths:
           - path: /
