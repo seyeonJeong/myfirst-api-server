@@ -3,7 +3,7 @@ pipeline {
 
   environment {
     // === 사용자 수정 영역 ===
-    GIT_URL                = 'https://{{GIT_REPO_URL}}'
+    GIT_URL                = 'https://github.com/seyeonJeong/myfirst-api-server.git'
     GIT_BRANCH             = '{{GIT_BRANCH}}'            // 또는 main
     GIT_ID                 = 'skala-github-id'   // GitHub PAT credential ID
     IMAGE_NAME             = '{{USER_NAME}}-{{IMAGE_NAME}}'    
