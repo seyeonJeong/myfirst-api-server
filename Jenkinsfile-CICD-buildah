@@ -3,25 +3,35 @@ pipeline {
   agent any
 
   environment {
-    // ===== GitHub 설정 =====
+    // ==================================
+    // GitHub 설정
+    // ==================================
     GIT_URL                = 'https://github.com/seyeonJeong/myfirst-api-server.git'
     GIT_BRANCH             = 'main'
     GIT_ID                 = 'skala-github-id'
 
-    // ===== 사용자 설정 =====
+    // ==================================
+    // 사용자 설정
+    // ==================================
     USER_NAME              = 'sk166'
     SERVICE_NAME           = 'myfirst-api-server'
 
-    // ===== 컨테이너 이미지 설정 =====
+    // ==================================
+    // 컨테이너 이미지 설정
+    // ==================================
     IMAGE_NAME             = 'sk166-webserver'
     IMAGE_TAG              = '1.0'
 
-    // ===== Harbor Registry (판교) =====
+    // ==================================
+    // Harbor Registry (판교)
+    // ==================================
     IMAGE_REGISTRY_URL     = 'skala-registry.skala-ai.com'
     IMAGE_REGISTRY_PROJECT = 'class-5'
     DOCKER_CREDENTIAL_ID   = 'skala-image-registry-id'
 
-    // ===== Kubernetes 설정 =====
+    // ==================================
+    // Kubernetes 설정
+    // ==================================
     K8S_NAMESPACE          = 'class-5'
     DEPLOYMENT_NAME        = 'sk166-myfirst-api-server'
   }
@@ -33,6 +43,9 @@ pipeline {
 
   stages {
 
+    // ==================================
+    // 1. GitHub 소스코드 가져오기
+    // ==================================
     stage('Clone Repository') {
       steps {
         echo '=== Clone Repository ==='
@@ -45,6 +58,9 @@ pipeline {
       }
     }
 
+    // ==================================
+    // 2. Maven Build
+    // ==================================
     stage('Build with Maven') {
       steps {
         echo '=== Build with Maven ==='
@@ -52,14 +68,21 @@ pipeline {
         sh '''
           set -eu
 
-          mvn -s settings.xml clean package -DskipTests
+          echo "=== Maven Version ==="
+          mvn -version
 
-          echo "=== Build Files ==="
-          ls -al
+          echo "=== Maven Package ==="
+          mvn clean package -DskipTests
+
+          echo "=== Build Result ==="
+          ls -al target/
         '''
       }
     }
 
+    // ==================================
+    // 3. Buildah Image Build & Push
+    // ==================================
     stage('Image Build & Push (Buildah)') {
       steps {
         echo '=== Image Build & Push (Buildah) ==='
@@ -106,6 +129,9 @@ pipeline {
       }
     }
 
+    // ==================================
+    // 4. Kubernetes Manifest 업데이트
+    // ==================================
     stage('Update K8s Manifests') {
       steps {
         echo '=== Update Kubernetes Manifests ==='
@@ -113,6 +139,7 @@ pipeline {
         sh '''
           set -eu
 
+          echo "=== Check Kustomize Directory ==="
           test -d ./kustomize/overlays/dev
 
           cd ./kustomize/overlays/dev
@@ -133,6 +160,9 @@ pipeline {
       }
     }
 
+    // ==================================
+    // 5. Kubernetes 배포
+    // ==================================
     stage('Deploy to Kubernetes') {
       steps {
         echo '=== Deploy to Kubernetes ==='
@@ -184,6 +214,9 @@ pipeline {
     }
   }
 
+  // ==================================
+  // Pipeline 실행 결과 처리
+  // ==================================
   post {
     success {
       echo '=== Jenkins CI/CD Pipeline SUCCESS ==='
